@@ -382,6 +382,24 @@
         </node>
       </children>
     </tagNode>
+    <node name="srv6">
+      <properties>
+        <help>Segment-Routing SRv6 configuration</help>
+      </properties>
+      <children>
+        <leafNode name="locator">
+          <properties>
+            <help>Specify SRv6 locator</help>
+            <completionHelp>
+              <script>${vyos_completion_dir}/list_srv6_locators.sh</script>
+            </completionHelp>
+            <constraint>
+              #include <include/constraint/alpha-numeric-hyphen-underscore.xml.i>
+            </constraint>
+          </properties>
+        </leafNode>
+      </children>
+    </node>
   </children>
 </node>
 <node name="redistribute">
