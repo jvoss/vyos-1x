@@ -19,6 +19,7 @@ import unittest
 from base_vyostest_shim import VyOSUnitTestSHIM
 from vyos.configsession import ConfigSessionError
 from vyos.ifconfig import Section
+from vyos.utils.network import interface_exists
 from vyos.utils.process import process_named_running
 from vyos.frrender import isis_daemon
 
@@ -410,6 +411,53 @@ class TestProtocolsISIS(VyOSUnitTestSHIM.TestCase):
             tmp = self.getFRRconfig(f'router isis {domain}', endsection='^exit')
             self.assertIn(f' net {net}', tmp)
             self.assertIn(f' topology {topology}', tmp)
+
+    def test_isis_11_segment_routing_srv6(self):
+        # Set a basic IS-IS config
+        self.cli_set(base_path + ['net', net])
+        self.cli_set(base_path + ['interface', 'lo'])
+
+        # Configure SRv6
+        locator = 'TEST'
+        srv6_base_path = base_path + ['segment-routing', 'srv6']
+        self.cli_set(srv6_base_path + ['locator', locator])
+        self.cli_commit()
+
+        tmp = self.getFRRconfig(f'router isis {domain}', endsection='^exit')
+        self.assertIn(' segment-routing srv6', tmp)
+        self.assertIn(f'  locator {locator}', tmp)
+        # assert default 'sr0' interface created
+        self.assertTrue(interface_exists('sr0'))
+
+        # Test custom interface
+        dum_iface = 'dum6'
+        self.cli_set(['interfaces', 'dummy', dum_iface])
+        self.cli_set(srv6_base_path + ['interface', dum_iface])
+        self.cli_commit()
+
+        tmp = self.getFRRconfig(f'router isis {domain}', endsection='^exit')
+        self.assertIn(f'  interface {dum_iface}', tmp)
+        # assert default 'sr0' interface is not created
+        self.assertFalse(interface_exists('sr0'))
+
+        # clean up custom interface
+        self.cli_delete(['interfaces', 'dummy', dum_iface])
+        self.cli_commit()
+
+        # Test node-msd configuration
+        self.cli_set(srv6_base_path + ['node-msd', 'max-end-d', '40'])
+        self.cli_set(srv6_base_path + ['node-msd', 'max-end-pop', '50'])
+        self.cli_set(srv6_base_path + ['node-msd', 'max-h-encaps', '60'])
+        self.cli_set(srv6_base_path + ['node-msd', 'max-segs-left', '70'])
+        self.cli_commit()
+
+        tmp = self.getFRRconfig(f'router isis {domain}', endsection='^exit')
+        self.assertIn('  node-msd', tmp)
+        self.assertIn('   max-end-d 40', tmp)
+        self.assertIn('   max-end-pop 50', tmp)
+        self.assertIn('   max-h-encaps 60', tmp)
+        self.assertIn('   max-segs-left 70', tmp)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

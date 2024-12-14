@@ -26,6 +26,8 @@ from vyos.frrender import get_frrender_dict
 from vyos.ifconfig import Interface
 from vyos.utils.dict import dict_search
 from vyos.utils.network import get_interface_config
+from vyos.utils.network import interface_exists
+from vyos.utils.process import call
 from vyos.utils.process import is_systemd_service_running
 from vyos import ConfigError
 from vyos import airbag
@@ -197,6 +199,17 @@ def verify(config_dict):
                     if int(index_size) > int(g_label_difference):
                         raise ConfigError(f'Segment routing prefix {prefix} cannot have an '\
                                           f'index base size larger than the SRGB label base.')
+
+    if dict_search('segment_routing.srv6', isis):
+        # The interface used to install SRv6 SIDs in the Linux data plane.
+        # https://docs.frrouting.org/en/stable-10.2/isisd.html#clicmd-interface-NAME
+        srv6_iface = dict_search('segment_routing.srv6.interface', isis)
+        if not srv6_iface and not interface_exists('sr0'):
+            call('ip link add sr0 type dummy && ip link set sr0 up')
+        elif srv6_iface and interface_exists('sr0'):
+            call('ip link del sr0')
+    elif interface_exists('sr0'):
+        call('ip link del sr0')
 
     # Check for LFA tiebreaker index duplication
     if dict_search('fast_reroute.lfa.local.tiebreaker', isis):

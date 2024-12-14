@@ -382,6 +382,87 @@
         </node>
       </children>
     </tagNode>
+    <node name="srv6">
+      <properties>
+        <help>Segment-Routing SRv6 configuration</help>
+      </properties>
+      <children>
+        <leafNode name="locator">
+          <properties>
+            <help>Specify SRv6 locator</help>
+            <completionHelp>
+              <script>${vyos_completion_dir}/list_srv6_locators.sh</script>
+            </completionHelp>
+            <constraint>
+              #include <include/constraint/alpha-numeric-hyphen-underscore.xml.i>
+            </constraint>
+          </properties>
+        </leafNode>
+        <node name="node-msd">
+          <properties>
+            <help>Segment Routing over IPv6 (SRv6) Maximum SRv6 SID Depths</help>
+          </properties>
+          <children>
+            <leafNode name="max-end-d">
+              <properties>
+                <help>Specify Maximum End D MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum End D MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-end-pop">
+              <properties>
+                <help>Specify Maximum End Pop MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum End Pop MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-h-encaps">
+              <properties>
+                <help>Specify Maximum H.Encaps MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum H.Encaps MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-segs-left">
+              <properties>
+                <help>Specify Maximum Segments Left MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum Segments Left MSD</description>
+                </valueHelp>
+                  <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+          </children>
+        </node>
+        <leafNode name="interface">
+          <properties>
+            <help>Interface for Segment Routing over IPv6 (SRv6) (default: sr0)</help>
+            <completionHelp>
+              <script>${vyos_completion_dir}/list_interfaces</script>
+            </completionHelp>
+          </properties>
+        </leafNode>
+      </children>
+    </node>
   </children>
 </node>
 <node name="redistribute">
