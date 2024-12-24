@@ -398,6 +398,61 @@
             </constraint>
           </properties>
         </leafNode>
+        <node name="node-msd">
+          <properties>
+            <help>Segment Routing over IPv6 (SRv6) Maximum SRv6 SID Depths</help>
+          </properties>
+          <children>
+            <leafNode name="max-end-d">
+              <properties>
+                <help>Specify Maximum End D MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum End D MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-end-pop">
+              <properties>
+                <help>Specify Maximum End Pop MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum End Pop MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-h-encaps">
+              <properties>
+                <help>Specify Maximum H.Encaps MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum H.Encaps MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+            <leafNode name="max-segs-left">
+              <properties>
+                <help>Specify Maximum Segments Left MSD</help>
+                <valueHelp>
+                  <format>u32:0-255</format>
+                  <description>Specify Maximum Segments Left MSD</description>
+                </valueHelp>
+                <constraint>
+                  <validator name="numeric" argument="--range 0-255"/>
+                </constraint>
+              </properties>
+            </leafNode>
+          </children>
+        </node>
       </children>
     </node>
   </children>

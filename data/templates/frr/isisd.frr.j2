@@ -157,6 +157,22 @@ advertise-passive-only
 {%         if segment_routing.srv6.locator is vyos_defined %}
   locator {{ segment_routing.srv6.locator }}
 {%         endif %}
+{%         if segment_routing.srv6.node_msd is vyos_defined %}
+  node-msd
+{%             if segment_routing.srv6.node_msd.max_segs_left is vyos_defined %}
+   max-segs-left {{ segment_routing.srv6.node_msd.max_segs_left }}
+{%             endif %}
+{%             if segment_routing.srv6.node_msd.max_end_pop is vyos_defined %}
+   max-end-pop {{ segment_routing.srv6.node_msd.max_end_pop }}
+{%             endif %}
+{%             if segment_routing.srv6.node_msd.max_h_encaps is vyos_defined %}
+   max-h-encaps {{ segment_routing.srv6.node_msd.max_h_encaps }}
+{%             endif %}
+{%             if segment_routing.srv6.node_msd.max_end_d is vyos_defined %}
+   max-end-d {{ segment_routing.srv6.node_msd.max_end_d }}
+{%             endif %}
+  exit
+{%         endif %}
  exit
 {%     endif %}
 {% endif %}
