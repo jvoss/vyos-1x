@@ -966,10 +966,11 @@ def traceroute_op(data: TracerouteModel):
 
     op = data.op
     host = data.host
+    vrf = data.vrf
 
     try:
         if op == 'traceroute':
-            res = session.traceroute(host)
+            res = session.traceroute(host, vrf)
         else:
             return error(400, f"'{op}' is not a valid operation")
     except ConfigSessionError as e:

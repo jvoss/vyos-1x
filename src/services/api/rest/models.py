@@ -307,6 +307,7 @@ class PoweroffModel(ApiModel):
 class TracerouteModel(ApiModel):
     op: StrictStr
     host: StrictStr
+    vrf: StrictStr = None
 
     class Config:
         schema_extra = {
@@ -314,6 +315,7 @@ class TracerouteModel(ApiModel):
                 'key': 'id_key',
                 'op': 'traceroute',
                 'host': 'host',
+                'vrf': 'vrf',
             }
         }
 
