@@ -304,6 +304,24 @@ class PoweroffModel(ApiModel):
         }
 
 
+class PingModel(ApiModel):
+    op: StrictStr
+    host: StrictStr
+    count: StrictInt = 5
+    vrf: StrictStr = None
+
+    class Config:
+        schema_extra = {
+            'example': {
+                'key': 'id_key',
+                'op': 'ping',
+                'host': 'host',
+                'count': 'count',
+                'vrf': 'vrf',
+            }
+        }
+
+
 class TracerouteModel(ApiModel):
     op: StrictStr
     host: StrictStr
