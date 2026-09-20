@@ -716,7 +716,11 @@ start ()
     fi
 
     # Start netplug daemon
-    systemctl start vyos-netlinkd.service
+    # DISABLED: DHCP and QoS are not used.
+    # netlinkd wakes on link events, checks for DHCP config, finds none,
+    # then goes back to sleep. Same process for re-applying QOS
+    # -- 48 MB to do nothing.
+    # systemctl start vyos-netlinkd.service
 }
 
 stop()
