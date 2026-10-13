@@ -830,6 +830,46 @@ class TestLoadBalancingReverseProxy(VyOSUnitTestSHIM.TestCase):
         # Check port availability without address (default to 'any'), must yield false
         self.assert_port_availability(False)
 
+    def test_reverse_proxy_vrf(self):
+        """A listen-address on an interface enslaved to the haproxy VRF must be accepted."""
+
+        vrf = 'RED'
+        vrf_table = '1000'
+        dummy_if_path = ['interfaces', 'dummy', 'dum69']
+        listen_address = '192.0.2.1'
+        svc_path = base_path + ['service', haproxy_service_name]
+
+        self.cli_set(['vrf', 'name', vrf, 'table', vrf_table])
+        self.cli_set(dummy_if_path + ['vrf', vrf])
+        self.cli_set(dummy_if_path + ['address', f'{listen_address}/32'])
+
+        self.base_config()
+        self.cli_set(base_path + ['vrf', vrf])
+        self.cli_set(svc_path + ['listen-address', listen_address])
+
+        # The address only exists inside the VRF - verify() must look there,
+        # both for the address lookup and for the port bind test
+        self.cli_commit()
+
+        config = read_file(HAPROXY_CONF)
+        self.assertIn(f'bind {listen_address}:{haproxy_service_port}', config)
+        self.verify_process_in_vrf(PROCESS_NAME, vrf)
+
+        # Without a listen-address haproxy binds the wildcard address - the
+        # port check for that case runs in the VRF, too
+        self.cli_delete(svc_path + ['listen-address'])
+        self.cli_commit()
+
+        config = read_file(HAPROXY_CONF)
+        self.assertIn(f'bind [::]:{haproxy_service_port} v4v6', config)
+        self.verify_process_in_vrf(PROCESS_NAME, vrf)
+
+        # Leave the VRF teardown to the common tearDown() commit so haproxy
+        # stops referencing the VRF in the same transaction that removes it
+        self.cli_delete(base_path)
+        self.cli_delete(dummy_if_path)
+        self.cli_delete(['vrf', 'name', vrf])
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2, failfast=VyOSUnitTestSHIM.TestCase.debug_on())
