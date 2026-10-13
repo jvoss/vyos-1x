@@ -68,6 +68,10 @@ def verify(lb):
     if 'backend' not in lb or 'service' not in lb:
         raise ConfigError('Both "service" and "backend" must be configured!')
 
+    # haproxy is started inside this VRF - both the address lookup and the
+    # port bind test must be done in the same L3 domain
+    vrf = lb.get('vrf')
+
     for front, front_config in lb['service'].items():
         if 'port' not in front_config:
             raise ConfigError(f'"{front} service port" must be configured!')
@@ -81,13 +85,15 @@ def verify(lb):
                 if '%' in listen_address:
                     listen_address, *_ = listen_address.split('%', maxsplit=1)
 
-                if not is_addr_assigned(listen_address, allow_nonlocal=True):
+                if not is_addr_assigned(
+                    listen_address, vrf=vrf, allow_nonlocal=True
+                ):
                     raise ConfigError(
                         f'listen-address "{listen_address}" not assigned on any interface!'
                     )
 
                 port_availability = check_port_availability(
-                    listen_address, listen_port, 'tcp'
+                    listen_address, listen_port, 'tcp', vrf=vrf
                 )
                 port_bind_service = is_listen_port_bind_service(
                     listen_port, 'haproxy', address=listen_address
@@ -98,7 +104,9 @@ def verify(lb):
                     )
         else:
             # Verify listen port for all IP addresses
-            port_availability = check_port_availability(None, listen_port, 'tcp')
+            port_availability = check_port_availability(
+                None, listen_port, 'tcp', vrf=vrf
+            )
             port_bind_service = is_listen_port_bind_service(listen_port, 'haproxy')
             if not port_availability and not port_bind_service:
                 raise ConfigError(
